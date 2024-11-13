@@ -5,7 +5,7 @@ from tkinter import ttk
 # Initialize the main window
 root = tk.Tk()
 root.title("Raffle Selection")
-root.geometry("400x400")
+root.geometry("400x500")
 
 note_label = tk.Label(root, text="This GUI randomly selects n records from an xlsx\n based on a unique field.", justify="left")
 note_label.pack(pady=10)
@@ -45,16 +45,20 @@ def load_data():
     output_text.delete(1.0, tk.END)
     global df
     path = path_entry.get()
+    unique_field = unique_fields_entry.get()
+    
     try:
         # Read data from the provided Excel path
         df = pd.read_excel(path)
+        # Drop dups
+        df.drop_duplicates(subset=[unique_field], inplace=True)
         display_message(f"Data loaded successfully. \nNumber of records: {df.shape[0]}")
     except Exception as e:
         display_message(f"Error loading data: {e}")
 
 # Make a selection
 def make_selection():
-    output_text.delete(1.0, tk.END)
+    # output_text.delete(1.0, tk.END)
     
     # Check if df is loaded
     global df
@@ -70,13 +74,11 @@ def make_selection():
         return
 
     try:
-        # Drop dups
-        df.drop_duplicates(subset=[unique_field], inplace=True)
 
         # Select the sample rows
         selected_rows = df.sample(n)
         selected_names = selected_rows[unique_field].to_list()  # Extract only names
-        display_message(f"Selected member(s):\n\t{', '.join(selected_names)}")
+        display_message(f'''\nSelected member(s):\n\t{', '.join(selected_names)}''')
 
         # Drop selected rows from the df
         df.drop(selected_rows.index, inplace=True)
